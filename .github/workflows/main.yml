@@ -1,0 +1,48 @@
+name: Auto Weather Scraper
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '8 0,8,16 * * *'
+
+# 設定權限，允許此 Workflow 修改你的倉庫內容
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Scraper
+        run: python main.py
+
+      # 不做 Artifacts，改做 Git Commit & Push
+      - name: Commit and Push Data
+        run: |
+          # 設定機器人的 Email 和名字
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          
+          # 把所有新的 csv 檔案加入追蹤
+          git add *.csv
+          
+          # 提交變更 (如果沒有新檔案，這一步不會報錯)
+          git commit -m "Auto-update: Weather data $(date +'%Y-%m-%d %H:%M')" || echo "No changes to commit"
+          
+          # 推送回倉庫
+          git push
