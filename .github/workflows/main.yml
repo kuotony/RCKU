@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '8 0,8,16 * * *'
+    - cron: '9 0,8,16 * * *'
 
 # 設定權限，允許此 Workflow 修改你的倉庫內容
 permissions:
